@@ -16,59 +16,59 @@ class _FlutterStripeState extends State<FlutterStripe> {
   final TextEditingController error = TextEditingController();
   final TextEditingController unk = TextEditingController();
 
-  // Future<void> makePayment() async {
-  //   try {
-  //     paymentIntent = await createPaymentIntent('10000', 'GBP');
-  //     if (paymentIntent == null) {
-  //       // Handle the case where the payment intent wasn't created successfully.
-  //       return;
-  //     }
-
-  //     // STEP 2: Initialize payment sheet
-  //     final result = await Stripe.instance.initPaymentSheet(
-  //       paymentSheetParameters: SetupPaymentSheetParameters(
-  //         paymentIntentClientSecret:
-  //             paymentIntent!['client_secret'], // Gotten from payment intent
-  //         style: ThemeMode.light,
-  //         merchantDisplayName: 'Your Business Name',
-  //         googlePay: gpay,
-  //       ),
-  //     );
-  //     if (result != null) {
-  //       debugPrint(result as String?);
-  //       // Handle initialization error.
-  //       return;
-  //     }
-
-  //     // STEP 3: Display payment sheet
-  //     displayPaymentSheet();
-  //   } catch (e) {
-  //     // Handle any other unexpected errors.
-  //     debugPrint('Error: $e');
-  //   }
-  // }
-
   Future<void> makePayment() async {
     try {
-      //STEP 1: Create Payment Intent
-      paymentIntent = await createPaymentIntent('100', 'USD');
+      paymentIntent = await createPaymentIntent('10000', 'GBP');
+      if (paymentIntent == null) {
+        // Handle the case where the payment intent wasn't created successfully.
+        return;
+      }
 
-      //STEP 2: Initialize Payment Sheet
-      await Stripe.instance
-          .initPaymentSheet(
-              paymentSheetParameters: SetupPaymentSheetParameters(
-                  paymentIntentClientSecret: paymentIntent![
-                      'client_secret'], //Gotten from payment intent
-                  style: ThemeMode.light,
-                  merchantDisplayName: 'Ikay'))
-          .then((value) {});
+      // STEP 2: Initialize payment sheet
+      final result = await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret:
+              paymentIntent!['client_secret'], // Gotten from payment intent
+          style: ThemeMode.light,
+          merchantDisplayName: 'Your Business Name',
+          googlePay: gpay,
+        ),
+      );
+      if (result != null) {
+        debugPrint(result as String?);
+        // Handle initialization error.
+        return;
+      }
 
-      //STEP 3: Display Payment sheet
+      // STEP 3: Display payment sheet
       displayPaymentSheet();
-    } catch (err) {
-      throw Exception(err);
+    } catch (e) {
+      // Handle any other unexpected errors.
+      debugPrint('Error: $e');
     }
   }
+
+  // Future<void> makePayment() async {
+  //   try {
+  //     //STEP 1: Create Payment Intent
+  //     paymentIntent = await createPaymentIntent('100', 'USD');
+
+  //     //STEP 2: Initialize Payment Sheet
+  //     await Stripe.instance
+  //         .initPaymentSheet(
+  //             paymentSheetParameters: SetupPaymentSheetParameters(
+  //                 paymentIntentClientSecret: paymentIntent![
+  //                     'client_secret'], //Gotten from payment intent
+  //                 style: ThemeMode.light,
+  //                 merchantDisplayName: 'Ikay'))
+  //         .then((value) {});
+
+  //     //STEP 3: Display Payment sheet
+  //     displayPaymentSheet();
+  //   } catch (err) {
+  //     throw Exception(err);
+  //   }
+  // }
 
   var gpay = const PaymentSheetGooglePay(
       merchantCountryCode: "GB", currencyCode: "GBP", testEnv: true);
@@ -157,71 +157,71 @@ class _FlutterStripeState extends State<FlutterStripe> {
     );
   }
 
-  // displayPaymentSheet() async {
-  //   final paymentResult = await Stripe.instance.presentPaymentSheet();
-  //   // state = NetworkState.success;
-  //   setState(() {
-  //     unk.text = paymentResult.toString();
-  //   });
-  //   if (paymentResult != null) {
-  //     // Handle any payment sheet errors.
-  //     debugPrint('Payment Sheet Error: $paymentResult');
-  //     setState(() {
-  //       error.text = paymentResult.toString();
-  //     });
-  //   } else {
-  //     // Payment was successful.
-  //     setState(() {
-  //       success.text = paymentResult.toString();
-  //     });
-  //     debugPrint('Payment successful');
-  //   }
-  // }
-
   displayPaymentSheet() async {
-    try {
-      await Stripe.instance.presentPaymentSheet().then((value) {
-        showDialog(
-            context: context,
-            builder: (_) => const AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 100.0,
-                      ),
-                      SizedBox(height: 10.0),
-                      Text("Payment Successful!"),
-                    ],
-                  ),
-                ));
-
-        paymentIntent = null;
-      }).onError((error, stackTrace) {
-        throw Exception(error);
+    final paymentResult = await Stripe.instance.presentPaymentSheet();
+    // state = NetworkState.success;
+    setState(() {
+      unk.text = paymentResult.toString();
+    });
+    if (paymentResult != null) {
+      // Handle any payment sheet errors.
+      debugPrint('Payment Sheet Error: $paymentResult');
+      setState(() {
+        error.text = paymentResult.toString();
       });
-    } on StripeException catch (e) {
-      print('Error is:---> $e');
-      const AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.cancel,
-                  color: Colors.red,
-                ),
-                Text("Payment Failed"),
-              ],
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      print('$e');
+    } else {
+      // Payment was successful.
+      setState(() {
+        success.text = paymentResult.toString();
+      });
+      debugPrint('Payment successful');
     }
   }
+
+  // displayPaymentSheet() async {
+  //   try {
+  //     await Stripe.instance.presentPaymentSheet().then((value) {
+  //       showDialog(
+  //           context: context,
+  //           builder: (_) => const AlertDialog(
+  //                 content: Column(
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   children: [
+  //                     Icon(
+  //                       Icons.check_circle,
+  //                       color: Colors.green,
+  //                       size: 100.0,
+  //                     ),
+  //                     SizedBox(height: 10.0),
+  //                     Text("Payment Successful!"),
+  //                   ],
+  //                 ),
+  //               ));
+
+  //       paymentIntent = null;
+  //     }).onError((error, stackTrace) {
+  //       throw Exception(error);
+  //     });
+  //   } on StripeException catch (e) {
+  //     print('Error is:---> $e');
+  //     const AlertDialog(
+  //       content: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Icon(
+  //                 Icons.cancel,
+  //                 color: Colors.red,
+  //               ),
+  //               Text("Payment Failed"),
+  //             ],
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     print('$e');
+  //   }
+  // }
 }
