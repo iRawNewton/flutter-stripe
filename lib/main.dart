@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_stripe_pay/flutter_stripe.dart';
 
@@ -9,8 +9,9 @@ void main() async {
   // Set your Stripe publishable key securely
   Stripe.publishableKey =
       'pk_test_51O282JSDBMiD0KSwVZaqewefk51dEKj7eS0dC4E7EylmmEVEa8BWR514VRGuZS8C3dlHDnDY3HWq28e1IUaRWIzm00gV3OoRaR';
-//Load our .env file that contains our Stripe Secret key
-  await dotenv.load(fileName: "assets/.env");
+  // Stripe.merchantIdentifier = 'any_string_works';
+  await Stripe.instance.applySettings();
+
   runApp(const MyApp());
 }
 
@@ -29,6 +30,27 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ===================================
 
 // import 'package:flutter/material.dart';

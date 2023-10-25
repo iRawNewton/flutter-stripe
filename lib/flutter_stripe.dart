@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_stripe/flutter_stripe.dart' hide Card;
 import 'package:flutter_stripe_pay/pt_intent.dart';
+import 'package:logger/logger.dart';
 
 class FlutterStripe extends StatefulWidget {
   const FlutterStripe({super.key});
@@ -15,10 +16,11 @@ class _FlutterStripeState extends State<FlutterStripe> {
   final TextEditingController success = TextEditingController();
   final TextEditingController error = TextEditingController();
   final TextEditingController unk = TextEditingController();
+  final logger = Logger();
 
   Future<void> makePayment() async {
     try {
-      paymentIntent = await createPaymentIntent('10000', 'GBP');
+      paymentIntent = await createPaymentIntent('10', 'USD');
       if (paymentIntent == null) {
         // Handle the case where the payment intent wasn't created successfully.
         return;
@@ -30,10 +32,12 @@ class _FlutterStripeState extends State<FlutterStripe> {
           paymentIntentClientSecret:
               paymentIntent!['client_secret'], // Gotten from payment intent
           style: ThemeMode.light,
-          merchantDisplayName: 'Your Business Name',
+          merchantDisplayName: 'Kyptronix LLP',
           googlePay: gpay,
         ),
       );
+
+      // logger.d(result);
       if (result != null) {
         debugPrint(result as String?);
         // Handle initialization error.
@@ -43,35 +47,35 @@ class _FlutterStripeState extends State<FlutterStripe> {
       // STEP 3: Display payment sheet
       displayPaymentSheet();
     } catch (e) {
-      // Handle any other unexpected errors.
+      //   // Handle any other unexpected errors.
       debugPrint('Error: $e');
     }
   }
 
-  // Future<void> makePayment() async {
-  //   try {
-  //     //STEP 1: Create Payment Intent
-  //     paymentIntent = await createPaymentIntent('100', 'USD');
-
-  //     //STEP 2: Initialize Payment Sheet
-  //     await Stripe.instance
-  //         .initPaymentSheet(
-  //             paymentSheetParameters: SetupPaymentSheetParameters(
-  //                 paymentIntentClientSecret: paymentIntent![
-  //                     'client_secret'], //Gotten from payment intent
-  //                 style: ThemeMode.light,
-  //                 merchantDisplayName: 'Ikay'))
-  //         .then((value) {});
-
-  //     //STEP 3: Display Payment sheet
-  //     displayPaymentSheet();
-  //   } catch (err) {
-  //     throw Exception(err);
-  //   }
-  // }
-
   var gpay = const PaymentSheetGooglePay(
       merchantCountryCode: "GB", currencyCode: "GBP", testEnv: true);
+
+  displayPaymentSheet() async {
+    final paymentResult = await Stripe.instance
+        .presentPaymentSheet(options: const PaymentSheetPresentOptions());
+    // state = NetworkState.success;
+    setState(() {
+      unk.text = paymentResult.toString();
+    });
+    if (paymentResult != null) {
+      // Handle any payment sheet errors.
+      debugPrint('Payment Sheet Error: $paymentResult');
+      setState(() {
+        error.text = paymentResult.toString();
+      });
+    } else {
+      // Payment was successful.
+      setState(() {
+        success.text = paymentResult.toString();
+      });
+      debugPrint('Payment successful');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,27 +159,6 @@ class _FlutterStripeState extends State<FlutterStripe> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
     );
-  }
-
-  displayPaymentSheet() async {
-    final paymentResult = await Stripe.instance.presentPaymentSheet();
-    // state = NetworkState.success;
-    setState(() {
-      unk.text = paymentResult.toString();
-    });
-    if (paymentResult != null) {
-      // Handle any payment sheet errors.
-      debugPrint('Payment Sheet Error: $paymentResult');
-      setState(() {
-        error.text = paymentResult.toString();
-      });
-    } else {
-      // Payment was successful.
-      setState(() {
-        success.text = paymentResult.toString();
-      });
-      debugPrint('Payment successful');
-    }
   }
 
   // displayPaymentSheet() async {
